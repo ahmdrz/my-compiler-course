@@ -14,6 +14,7 @@ const (
 	Digits             = "dgts"
 	Declaration        = "dcln"
 	MathematicalSymbol = "mtsl"
+	Identifier         = "name"
 )
 
 var digitRegex = regexp.MustCompile(`((\d+)|(.|e(-|\+))\d+)`)
@@ -65,7 +66,7 @@ func (l *Lexer) makeToken(text []rune, typeOfInput ...string) Token {
 		if digitRegex.MatchString(t) {
 			typeOfText = Digits
 		} else {
-			typeOfText = "unknown"
+			typeOfText = Identifier
 		}
 	}
 	return Token{Line: l.line, Text: string(text), Type: typeOfText}
