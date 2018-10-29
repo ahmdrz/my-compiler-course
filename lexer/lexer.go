@@ -8,36 +8,36 @@ import (
 )
 
 const (
-	delimeter          = "dlmt"
-	statement          = "stmt"
-	operator           = "oprt"
-	digits             = "dgts"
-	declaration        = "dcln"
-	mathematicalSymbol = "mtsl"
+	Delimeter          = "dlmt"
+	Statement          = "stmt"
+	Operator           = "oprt"
+	Digits             = "dgts"
+	Declaration        = "dcln"
+	MathematicalSymbol = "mtsl"
 )
 
 var digitRegex = regexp.MustCompile(`((\d+)|(.|e(-|\+))\d+)`)
 
 var keywords = map[string]string{
-	"if":    statement,
-	"for":   statement,
-	"while": statement,
-	"(":     delimeter,
-	")":     delimeter,
-	";":     delimeter,
-	"{":     delimeter,
-	"}":     delimeter,
-	">":     operator,
-	"<":     operator,
-	">=":    operator,
-	"<=":    operator,
-	"=":     operator,
-	"<>":    operator,
-	":=":    declaration,
-	"-":     mathematicalSymbol,
-	"+":     mathematicalSymbol,
-	"*":     mathematicalSymbol,
-	"/":     mathematicalSymbol,
+	"if":    Statement,
+	"for":   Statement,
+	"while": Statement,
+	"(":     Delimeter,
+	")":     Delimeter,
+	";":     Delimeter,
+	"{":     Delimeter,
+	"}":     Delimeter,
+	">":     Operator,
+	"<":     Operator,
+	">=":    Operator,
+	"<=":    Operator,
+	"=":     Operator,
+	"<>":    Operator,
+	":=":    Declaration,
+	"-":     MathematicalSymbol,
+	"+":     MathematicalSymbol,
+	"*":     MathematicalSymbol,
+	"/":     MathematicalSymbol,
 }
 
 type Token struct {
@@ -63,7 +63,7 @@ func (l *Lexer) makeToken(text []rune, typeOfInput ...string) Token {
 	typeOfText, ok := keywords[t]
 	if !ok {
 		if digitRegex.MatchString(t) {
-			typeOfText = digits
+			typeOfText = Digits
 		} else {
 			typeOfText = "unknown"
 		}
@@ -76,7 +76,7 @@ func (l *Lexer) isDelimeter(ch rune) bool {
 	if !exists {
 		return false
 	}
-	return typeOfRune == delimeter
+	return typeOfRune == Delimeter || typeOfRune == MathematicalSymbol
 }
 
 func (l *Lexer) Load(input io.Reader) error {
@@ -119,7 +119,7 @@ func (l *Lexer) Tokenizer() chan Token {
 			if quoted {
 				if ch == '"' {
 					quoted = false
-					output <- l.makeToken(val, declaration)
+					output <- l.makeToken(val, Declaration)
 					val = []rune{}
 					continue
 				}
