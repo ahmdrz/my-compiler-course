@@ -8,30 +8,36 @@ import (
 )
 
 const (
-	delimeter   = "dlmt"
-	statement   = "stmt"
-	operator    = "oprt"
-	digits      = "dgts"
-	declaration = "dcln"
+	delimeter          = "dlmt"
+	statement          = "stmt"
+	operator           = "oprt"
+	digits             = "dgts"
+	declaration        = "dcln"
+	mathematicalSymbol = "mtsl"
 )
 
-var digitRegex = regexp.MustCompile(`(\d+)(.|e(-|\+))\d+`)
+var digitRegex = regexp.MustCompile(`((\d+)|(.|e(-|\+))\d+)`)
 
 var keywords = map[string]string{
-	"if":  statement,
-	"for": statement,
-	"(":   delimeter,
-	")":   delimeter,
-	";":   delimeter,
-	"{":   delimeter,
-	"}":   delimeter,
-	">":   operator,
-	"<":   operator,
-	">=":  operator,
-	"<=":  operator,
-	"=":   operator,
-	"<>":  operator,
-	":=":  declaration,
+	"if":    statement,
+	"for":   statement,
+	"while": statement,
+	"(":     delimeter,
+	")":     delimeter,
+	";":     delimeter,
+	"{":     delimeter,
+	"}":     delimeter,
+	">":     operator,
+	"<":     operator,
+	">=":    operator,
+	"<=":    operator,
+	"=":     operator,
+	"<>":    operator,
+	":=":    declaration,
+	"-":     mathematicalSymbol,
+	"+":     mathematicalSymbol,
+	"*":     mathematicalSymbol,
+	"/":     mathematicalSymbol,
 }
 
 type Token struct {
@@ -49,8 +55,11 @@ func NewLexer() *Lexer {
 	return &Lexer{line: 1}
 }
 
-func (l *Lexer) makeToken(text []rune) Token {
+func (l *Lexer) makeToken(text []rune, typeOfInput ...string) Token {
 	t := string(text)
+	if len(typeOfInput) == 1 {
+		return Token{Line: l.line, Text: string(text), Type: typeOfInput[0]}
+	}
 	typeOfText, ok := keywords[t]
 	if !ok {
 		if digitRegex.MatchString(t) {
@@ -89,6 +98,7 @@ func (l *Lexer) Load(input io.Reader) error {
 func (l *Lexer) Tokenizer() chan Token {
 	var val []rune
 	var comment bool
+	var quoted bool
 	output := make(chan Token)
 
 	go func() {
@@ -104,6 +114,20 @@ func (l *Lexer) Tokenizer() chan Token {
 					break
 				}
 				panic(err)
+			}
+
+			if quoted {
+				if ch == '"' {
+					quoted = false
+					output <- l.makeToken(val, declaration)
+					val = []rune{}
+					continue
+				}
+				if ch == '\n' {
+					l.line++
+				}
+				val = append(val, ch)
+				continue
 			}
 
 			if unicode.IsSpace(ch) {
@@ -133,6 +157,13 @@ func (l *Lexer) Tokenizer() chan Token {
 				}
 				output <- l.makeToken([]rune{ch})
 				continue
+			}
+
+			if len(val) == 0 {
+				if ch == '"' {
+					quoted = true
+					continue
+				}
 			}
 
 			val = append(val, ch)
