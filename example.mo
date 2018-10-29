@@ -7,10 +7,8 @@ if (a > b) {
 }
 
 # start while structure !
-while 
-
+while
 (a < 5) 
-
 {
     print(a);
     a++;

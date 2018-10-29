@@ -99,6 +99,8 @@ func (l *Lexer) Tokenizer() chan Token {
 	var val []rune
 	var comment bool
 	var quoted bool
+	var lastChar rune
+
 	output := make(chan Token)
 
 	go func() {
@@ -150,7 +152,8 @@ func (l *Lexer) Tokenizer() chan Token {
 				continue
 			}
 
-			if l.isDelimeter(ch) {
+			if lastChar != 'e' && l.isDelimeter(ch) {
+				// (lastChar == 'e') for ignoring +/- on scientific symbol
 				if len(val) > 0 {
 					output <- l.makeToken(val)
 					val = []rune{}
@@ -166,6 +169,7 @@ func (l *Lexer) Tokenizer() chan Token {
 				}
 			}
 
+			lastChar = ch
 			val = append(val, ch)
 		}
 		close(output)
