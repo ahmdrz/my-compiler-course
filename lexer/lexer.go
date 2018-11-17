@@ -77,7 +77,7 @@ func (l *Lexer) isDelimeter(ch rune) bool {
 	if !exists {
 		return false
 	}
-	return typeOfRune == Delimeter || typeOfRune == MathematicalSymbol
+	return typeOfRune == Delimeter
 }
 
 func (l *Lexer) Load(input io.Reader) error {
@@ -101,6 +101,7 @@ func (l *Lexer) Tokenizer() chan Token {
 	var comment bool
 	var quoted bool
 	var lastChar rune
+	var multiComment int = 0
 
 	output := make(chan Token)
 
@@ -117,6 +118,21 @@ func (l *Lexer) Tokenizer() chan Token {
 					break
 				}
 				panic(err)
+			}
+
+			if string(val) == "/*" {
+				multiComment = 1
+				val = []rune{}
+			}
+
+			if multiComment != 0 {
+				if ch == '*' {
+					multiComment = 2
+				}
+				if ch == '/' {
+					multiComment = 0
+				}
+				continue
 			}
 
 			if quoted {
@@ -153,7 +169,8 @@ func (l *Lexer) Tokenizer() chan Token {
 				continue
 			}
 
-			if lastChar != 'e' && l.isDelimeter(ch) {
+			if l.isDelimeter(ch) {
+				// if lastChar != 'e' {
 				// (lastChar == 'e') for ignoring +/- on scientific symbol
 				if len(val) > 0 {
 					output <- l.makeToken(val)
@@ -161,6 +178,7 @@ func (l *Lexer) Tokenizer() chan Token {
 				}
 				output <- l.makeToken([]rune{ch})
 				continue
+				// }
 			}
 
 			if len(val) == 0 {
