@@ -27,7 +27,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	for token := range lexer.Tokenizer() {
+	for {
+		token := lexer.Next()
+		if token == nil {
+			break
+		}
 		fmt.Printf("In line %03d token %-15s type %s\n", token.Line, token.Text, token.Type)
 	}
 }
