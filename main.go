@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"os"
 
-	lx "github.com/ahmdrz/my-compiler-course/lexer"
+	"github.com/ahmdrz/my-compiler-course/lexer"
+	"github.com/ahmdrz/my-compiler-course/parser"
 )
 
 func main() {
@@ -20,18 +20,19 @@ func main() {
 		}
 	}
 
-	lexer := lx.NewLexer()
-	err = lexer.Load(input)
+	myLexer := lexer.NewLexer()
+	err = myLexer.Load(input)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatalln(err)
 	}
 
-	for {
-		token := lexer.Next()
-		if token == nil {
-			break
-		}
-		fmt.Printf("In line %03d token %-15s type %s\n", token.Line, token.Text, token.Type)
+	myParser, err := parser.NewParser(myLexer)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = myParser.Parse()
+	if err != nil {
+		log.Fatalln(err)
 	}
 }

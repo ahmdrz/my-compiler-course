@@ -48,3 +48,34 @@ In line 014 token c               type name
 In line 014 token :=              type dcln
 In line 014 token 2               type dgts
 ```
+
+## Parser
+
+I used `RecursiveDescentParser` as my parser.
+
+Example input 1: 
+
+```
+main { 
+    a := 1;
+    b := 300;
+    if (a == b) {
+        d = a + 1;
+    }
+
+    /*
+
+    hello
+    world
+
+    */
+
+    c := 2
+}
+```
+
+Parser output: 
+
+```
+line 016, statements: ; forgotten
+```

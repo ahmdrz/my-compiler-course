@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"regexp"
 	"unicode"
@@ -52,9 +53,17 @@ type Token struct {
 	Type string
 }
 
+func (t Token) String() string {
+	return fmt.Sprintf("line %03d, text %s, type %s", t.Line, t.Text, t.Type)
+}
+
 type Lexer struct {
 	Reader *bufio.Reader
 	line   int
+}
+
+func (l *Lexer) Line() int {
+	return l.line
 }
 
 func NewLexer() *Lexer {
@@ -99,6 +108,10 @@ func (l *Lexer) Load(input io.Reader) error {
 	}
 	l.Reader = reader
 	return nil
+}
+
+func (l *Lexer) Backward(t *Token) {
+
 }
 
 func (l *Lexer) Next() *Token {
