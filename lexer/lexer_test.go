@@ -28,7 +28,12 @@ func TestTokenizer(t *testing.T) {
 		t.Fatal(err)
 	}
 	variableDetector := false
-	for token := range lexer.Tokenizer() {
+
+	for {
+		token := lexer.Next()
+		if token == nil {
+			break
+		}
 		if token.Text == "a" {
 			variableDetector = true
 			break

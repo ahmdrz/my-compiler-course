@@ -34,7 +34,11 @@ func TestFileTokenizer(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for token := range lexer.Tokenizer() {
+	for {
+		token := lexer.Next()
+		if token == nil {
+			break
+		}
 		t.Logf("Line %03d Token %-18s Type %s", token.Line, token.Text, token.Type)
 	}
 }
